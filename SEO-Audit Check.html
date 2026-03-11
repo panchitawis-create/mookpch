@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>SEO คืออะไร ทำไมถึงสำคัญ</title>
+
+<style> 
+body{
+  font-family:prompt, sans-serif;
+  text-align:center;
+  margin-top:120px;
+  background:white;
+  overflow:hidden;
+}
+
+/* ปุ่ม */
+button{
+  padding:14px 30px;
+  font-size:18px;
+  background:#0066ff;
+  color:white;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+/* overlay มืด */
+#overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:black;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity 2s;
+}
+
+/* ข้อความกลางจอ */
+#message{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  color:white;
+  font-size:34px;
+  text-align:center;
+  width:80%;
+}
+
+/* หัวใจ */
+.heart{
+  position:fixed;
+  bottom:0;
+  animation:floatUp 4s linear forwards;
+}
+
+@keyframes floatUp{
+  0%{
+    transform:translateY(0);
+    opacity:1;
+  }
+  100%{
+    transform:translateY(-100vh);
+    opacity:0;
+  }
+}
+
+</style>
+</head>
+
+<body>
+  <h1 style="text alig">ถอดรหัส AI SEARCH 2026 </h1>
+  <img src="https://talkatalka.com/wp-content/uploads/2025/09/TALKA_202509_Content01-01-1024x536.jpg" width="800">
+ <br>
+ <br>
+ <button onclick="startLove()">คลิก อ่านสไลด์</button>
+
+<div id="overlay">
+  <div id="message"></div>
+</div>
+
+<script>
+
+const text = "วันนี้ เหนื่อยไหม สู้ๆ นะ i luv u N' Tong ❤️";
+let i = 0;
+
+function startLove(){
+
+  const overlay = document.getElementById("overlay");
+  overlay.style.visibility = "visible";
+  overlay.style.opacity = "0.9";
+
+  setTimeout(typeWriter,1000);
+  setInterval(createHeart,300);
+}
+
+function typeWriter(){
+  if(i < text.length){
+    document.getElementById("message").innerHTML += text.charAt(i);
+    i++;
+    setTimeout(typeWriter,80);
+  }
+}
+
+function createHeart(){
+  const heart = document.createElement("div");
+  heart.classList.add("heart");
+  heart.innerHTML = "❤️";
+
+  heart.style.left = Math.random()*100 + "vw";
+  heart.style.fontSize = (20 + Math.random()*25) + "px";
+
+  document.body.appendChild(heart);
+
+  setTimeout(()=>{
+    heart.remove();
+  },4000);
+}
+
+</script>
+
+</body>
+</html>
