@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kcal — นับแคลอรี่</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --white:#ffffff;
+  --off:#f9f9f9;
+  --gray50:#f4f4f5;
+  --gray100:#e4e4e7;
+  --gray200:#d4d4d8;
+  --gray400:#a1a1aa;
+  --gray600:#52525b;
+  --gray800:#27272a;
+  --gray900:#18181b;
+  --green:#16a34a;
+  --green-lt:#dcfce7;
+  --green-mid:#86efac;
+  --red:#dc2626;
+  --red-lt:#fee2e2;
+  --amber:#d97706;
+  --amber-lt:#fef3c7;
+  --blue:#2563eb;
+  --blue-lt:#dbeafe;
+  --radius:10px;
+  --radius-lg:16px;
+  --shadow:0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter','Noto Sans Thai',sans-serif;
+  background:var(--off);
+  color:var(--gray900);
+  min-height:100vh;
+  font-size:14px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* NAV */
+nav{
+  background:var(--white);
+  border-bottom:1px solid var(--gray100);
+  position:sticky;top:0;z-index:100;
+}
+.nav-inner{
+  max-width:600px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;height:52px;
+}
+.nav-brand{font-size:16px;font-weight:600;letter-spacing:-0.3px;color:var(--gray900)}
+.nav-brand span{color:var(--green)}
+.nav-tabs{display:flex;gap:2px}
+.nav-tab{
+  padding:6px 14px;border-radius:8px;font-size:13px;font-weight:500;
+  color:var(--gray400);cursor:pointer;border:none;background:none;
+  font-family:inherit;transition:all 0.15s;
+}
+.nav-tab.active{background:var(--gray50);color:var(--gray900)}
+.nav-tab:hover:not(.active){color:var(--gray600)}
+
+/* PAGES */
+.page{display:none;max-width:600px;margin:0 auto;padding:16px 16px 80px}
+.page.active{display:block}
+
+/* CARD */
+.card{
+  background:var(--white);border-radius:var(--radius-lg);
+  border:1px solid var(--gray100);padding:20px;margin-bottom:12px;
+  box-shadow:var(--shadow);
+}
+.card-title{
+  font-size:11px;font-weight:600;letter-spacing:0.08em;
+  text-transform:uppercase;color:var(--gray400);margin-bottom:16px;
+}
+
+/* RING HERO */
+.hero-card{display:flex;align-items:center;gap:20px;padding:20px}
+.ring-wrap{position:relative;flex-shrink:0;width:120px;height:120px}
+.ring-wrap svg{display:block}
+.ring-center{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;pointer-events:none;
+}
+.ring-pct{font-size:24px;font-weight:600;letter-spacing:-1px;line-height:1}
+.ring-sub{font-size:11px;color:var(--gray400);margin-top:2px}
+.hero-stats{flex:1;display:flex;flex-direction:column;gap:0}
+.hstat{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--gray100)}
+.hstat:last-child{border-bottom:none;padding-bottom:0}
+.hstat:first-child{padding-top:0}
+.hstat-label{font-size:12px;color:var(--gray400);display:flex;align-items:center;gap:6px}
+.hstat-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.hstat-val{font-size:15px;font-weight:600}
+
+/* MACROS BAR */
+.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.macro-card{
+  background:var(--white);border:1px solid var(--gray100);
+  border-radius:var(--radius);padding:12px;text-align:center;
+  box-shadow:var(--shadow);
+}
+.macro-card .m-val{font-size:18px;font-weight:600;line-height:1}
+.macro-card .m-label{font-size:11px;color:var(--gray400);margin-top:3px}
+.macro-card .m-sub{font-size:10px;color:var(--gray400);margin-top:1px}
+
+/* MEAL TABS */
+.meal-tabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
+.meal-tabs::-webkit-scrollbar{display:none}
+.mtab{
+  padding:6px 16px;border-radius:99px;font-size:13px;font-weight:500;
+  color:var(--gray400);cursor:pointer;border:1px solid var(--gray100);
+  background:var(--white);white-space:nowrap;flex-shrink:0;
+  transition:all 0.15s;font-family:inherit;
+}
+.mtab.active{background:var(--gray900);color:var(--white);border-color:var(--gray900)}
+
+/* ADD FORM */
+.add-form{display:flex;gap:8px;margin-bottom:14px;align-items:center}
+.add-form input{
+  flex:1;height:40px;border:1px solid var(--gray200);
+  border-radius:var(--radius);padding:0 12px;font-size:14px;
+  color:var(--gray900);background:var(--white);outline:none;
+  font-family:inherit;transition:border 0.15s;
+}
+.add-form input:focus{border-color:var(--gray900);box-shadow:0 0 0 3px rgba(0,0,0,0.05)}
+.add-form input[type="number"]{width:88px;flex:none}
+.btn-primary{
+  height:40px;padding:0 18px;background:var(--gray900);color:var(--white);
+  border:none;border-radius:var(--radius);font-size:14px;font-weight:500;
+  cursor:pointer;white-space:nowrap;font-family:inherit;transition:opacity 0.15s;
+}
+.btn-primary:hover{opacity:0.85}
+.btn-primary:active{opacity:0.7}
+
+/* QUICK PICKS */
+.qp-label{font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--gray400);margin-bottom:8px}
+.qp-grid{display:flex;flex-wrap:wrap;gap:6px}
+.qp-chip{
+  font-size:12px;padding:5px 12px;border-radius:99px;
+  border:1px solid var(--gray100);background:var(--gray50);
+  color:var(--gray600);cursor:pointer;transition:all 0.15s;
+  white-space:nowrap;
+}
+.qp-chip:hover{background:var(--gray100);color:var(--gray900);border-color:var(--gray200)}
+
+/* LOG */
+.log-empty{text-align:center;padding:32px 0;color:var(--gray400)}
+.log-empty .ei{font-size:32px;display:block;margin-bottom:8px}
+.meal-group{margin-bottom:4px}
+.meal-group-hd{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+  color:var(--gray400);padding:10px 0 6px;
+}
+.meal-group-hd:first-child{padding-top:0}
+.log-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:var(--radius);
+  background:var(--gray50);margin-bottom:4px;
+  transition:background 0.1s;
+}
+.log-item:hover{background:var(--gray100)}
+.li-icon{font-size:20px;flex-shrink:0}
+.li-body{flex:1;min-width:0}
+.li-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li-unit{font-size:11px;color:var(--gray400)}
+.li-cal{font-size:14px;font-weight:600;color:var(--gray900);margin-right:6px;white-space:nowrap}
+.li-cal span{font-size:11px;font-weight:400;color:var(--gray400)}
+.btn-del{
+  background:none;border:none;cursor:pointer;color:var(--gray400);
+  padding:4px;border-radius:6px;font-size:18px;line-height:1;
+  transition:color 0.12s;flex-shrink:0;
+}
+.btn-del:hover{color:var(--red)}
+
+/* BADGE */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:500;padding:3px 10px;
+  border-radius:99px;
+}
+.badge-green{background:var(--green-lt);color:var(--green)}
+.badge-red{background:var(--red-lt);color:var(--red)}
+.badge-amber{background:var(--amber-lt);color:var(--amber)}
+.badge-blue{background:var(--blue-lt);color:var(--blue)}
+
+/* GOAL SLIDER */
+.goal-row{display:flex;align-items:center;gap:12px}
+.goal-row label{font-size:13px;color:var(--gray600);white-space:nowrap}
+.goal-row input[type="range"]{flex:1;accent-color:var(--gray900);cursor:pointer}
+.goal-val-display{font-size:14px;font-weight:600;min-width:90px;text-align:right}
+
+/* HISTORY */
+.hist-day{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--gray100)}
+.hist-day:last-child{border-bottom:none}
+.hist-date{font-size:12px;color:var(--gray400);width:70px;flex-shrink:0}
+.hist-bar-track{flex:1;height:5px;background:var(--gray100);border-radius:99px;overflow:hidden}
+.hist-bar-fill{height:100%;border-radius:99px;background:var(--green);transition:width 0.5s}
+.hist-bar-fill.over{background:var(--red)}
+.hist-cal{font-size:13px;font-weight:600;width:65px;text-align:right;flex-shrink:0}
+
+/* BMR PAGE */
+.bmr-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+.form-group label{font-size:12px;font-weight:500;color:var(--gray600)}
+.form-group input,.form-group select{
+  height:40px;border:1px solid var(--gray200);border-radius:var(--radius);
+  padding:0 12px;font-size:14px;color:var(--gray900);background:var(--white);
+  outline:none;font-family:inherit;transition:border 0.15s;
+}
+.form-group input:focus,.form-group select:focus{
+  border-color:var(--gray900);box-shadow:0 0 0 3px rgba(0,0,0,0.05);
+}
+.seg-control{display:flex;background:var(--gray50);border:1px solid var(--gray100);border-radius:var(--radius);padding:3px;gap:3px}
+.seg-btn{
+  flex:1;height:34px;border:none;border-radius:7px;font-size:13px;font-weight:500;
+  cursor:pointer;font-family:inherit;background:none;color:var(--gray400);transition:all 0.15s;
+}
+.seg-btn.active{background:var(--white);color:var(--gray900);box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.result-card{background:var(--gray50);border-radius:var(--radius);padding:14px;text-align:center;border:1px solid var(--gray100)}
+.result-card.highlight{background:var(--gray900);border-color:var(--gray900)}
+.result-card .rv{font-size:22px;font-weight:600;line-height:1}
+.result-card.highlight .rv{color:var(--white)}
+.result-card .rl{font-size:11px;color:var(--gray400);margin-top:4px}
+.result-card.highlight .rl{color:#a1a1aa}
+
+.activity-list{display:flex;flex-direction:column;gap:6px}
+.act-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 14px;border-radius:var(--radius);border:1px solid var(--gray100);
+  background:var(--white);cursor:pointer;transition:all 0.15s;
+}
+.act-item:hover{background:var(--gray50)}
+.act-item.selected{background:var(--gray900);border-color:var(--gray900)}
+.act-item .act-name{font-size:13px;font-weight:500;color:var(--gray900)}
+.act-item.selected .act-name{color:var(--white)}
+.act-item .act-desc{font-size:11px;color:var(--gray400);margin-top:1px}
+.act-item.selected .act-desc{color:#a1a1aa}
+.act-item .act-cal{font-size:13px;font-weight:600;color:var(--gray400)}
+.act-item.selected .act-cal{color:var(--white)}
+
+.use-tdee-btn{
+  width:100%;height:44px;border:none;border-radius:var(--radius);
+  background:var(--green);color:var(--white);font-size:14px;font-weight:600;
+  cursor:pointer;font-family:inherit;margin-top:16px;transition:opacity 0.15s;
+}
+.use-tdee-btn:hover{opacity:0.88}
+
+/* FOOD DB PAGE */
+.search-wrap{position:relative;margin-bottom:12px}
+.search-wrap input{
+  width:100%;height:42px;border:1px solid var(--gray200);
+  border-radius:var(--radius);padding:0 12px 0 38px;font-size:14px;
+  color:var(--gray900);background:var(--white);outline:none;font-family:inherit;
+  transition:border 0.15s;
+}
+.search-wrap input:focus{border-color:var(--gray900)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--gray400);font-size:16px;pointer-events:none}
+.cat-tabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
+.cat-tabs::-webkit-scrollbar{display:none}
+.cat-tab{
+  padding:5px 14px;border-radius:99px;font-size:12px;font-weight:500;
+  color:var(--gray400);cursor:pointer;border:1px solid var(--gray100);
+  background:var(--white);white-space:nowrap;flex-shrink:0;transition:all 0.15s;
+}
+.cat-tab.active{background:var(--gray900);color:var(--white);border-color:var(--gray900)}
+.food-table{width:100%;border-collapse:collapse}
+.food-table th{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--gray400);text-align:left;padding:8px 10px;border-bottom:1px solid var(--gray100)}
+.food-table td{padding:10px 10px;border-bottom:1px solid var(--gray50);font-size:13px;vertical-align:middle}
+.food-table tr:last-child td{border-bottom:none}
+.food-table tr:hover td{background:var(--gray50)}
+.food-name-cell{font-weight:500}
+.food-cat-badge{font-size:10px;padding:2px 7px;border-radius:99px;background:var(--gray100);color:var(--gray600)}
+.btn-add-food{
+  padding:4px 12px;border:1px solid var(--gray200);border-radius:7px;
+  background:var(--white);font-size:12px;font-weight:500;color:var(--gray600);
+  cursor:pointer;font-family:inherit;transition:all 0.15s;white-space:nowrap;
+}
+.btn-add-food:hover{background:var(--gray900);color:var(--white);border-color:var(--gray900)}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--gray900);color:var(--white);padding:10px 20px;
+  border-radius:99px;font-size:13px;font-weight:500;
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  z-index:999;pointer-events:none;white-space:nowrap;
+  box-shadow:var(--shadow-md);
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--gray100);margin:12px 0}
+
+/* UTIL */
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.text-muted{color:var(--gray400);font-size:12px}
+.btn-ghost{
+  background:none;border:1px solid var(--gray200);border-radius:8px;
+  padding:5px 12px;font-size:12px;color:var(--gray400);cursor:pointer;
+  font-family:inherit;transition:all 0.15s;
+}
+.btn-ghost:hover{color:var(--red);border-color:var(--red)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">Kcal<span>.</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('today',this)">วันนี้</button>
+      <button class="nav-tab" onclick="showPage('bmr',this)">BMR/TDEE</button>
+      <button class="nav-tab" onclick="showPage('foods',this)">อาหาร</button>
+    </div>
+  </div>
+</nav>
+
+<!-- TODAY PAGE -->
+<div class="page active" id="page-today">
+
+  <!-- Ring hero -->
+  <div class="card hero-card">
+    <div class="ring-wrap">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#f4f4f5" stroke-width="10"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#16a34a" stroke-width="10"
+          stroke-linecap="round" id="ring-arc"
+          stroke-dasharray="314" stroke-dashoffset="314"
+          transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 0.6s ease,stroke 0.3s"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-pct" id="ring-pct">0%</div>
+        <div class="ring-sub">ของเป้า</div>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat">
+        <span class="hstat-label"><span class="hstat-dot" style="background:#16a34a"></span>รับไปแล้ว</span>
+        <span class="hstat-val" id="hstat-consumed">0 kcal</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat-label"><span class="hstat-dot" style="background:#e4e4e7"></span>เป้าหมาย</span>
+        <span class="hstat-val" id="hstat-goal">2,000 kcal</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat-label"><span class="hstat-dot" id="rem-dot" style="background:#a1a1aa"></span><span id="rem-lbl">คงเหลือ</span></span>
+        <span class="hstat-val" id="hstat-rem">2,000 kcal</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- macros hint -->
+  <div class="macros" id="macros-row">
+    <div class="macro-card">
+      <div class="m-val" id="mac-carb">–</div>
+      <div class="m-label">คาร์โบ</div>
+      <div class="m-sub">kcal</div>
+    </div>
+    <div class="macro-card">
+      <div class="m-val" id="mac-pro">–</div>
+      <div class="m-label">โปรตีน</div>
+      <div class="m-sub">kcal</div>
+    </div>
+    <div class="macro-card">
+      <div class="m-val" id="mac-fat">–</div>
+      <div class="m-label">ไขมัน</div>
+      <div class="m-sub">kcal</div>
+    </div>
+  </div>
+
+  <!-- Add -->
+  <div class="card">
+    <div class="card-title">เพิ่มรายการ</div>
+    <div class="meal-tabs" id="meal-tabs">
+      <button class="mtab active" data-meal="breakfast" onclick="selectMeal(this)">🌅 เช้า</button>
+      <button class="mtab" data-meal="lunch" onclick="selectMeal(this)">☀️ กลางวัน</button>
+      <button class="mtab" data-meal="dinner" onclick="selectMeal(this)">🌙 เย็น</button>
+      <button class="mtab" data-meal="snack" onclick="selectMeal(this)">🍎 ของว่าง</button>
+    </div>
+    <div class="add-form">
+      <input type="text" id="food-input" placeholder="ชื่ออาหาร" list="food-dl" autocomplete="off"/>
+      <datalist id="food-dl"></datalist>
+      <input type="number" id="cal-input" placeholder="kcal" min="0" max="9999" step="1"/>
+      <button class="btn-primary" onclick="addFood()">+ เพิ่ม</button>
+    </div>
+    <div class="qp-label">เลือกเร็ว</div>
+    <div class="qp-grid" id="qp-grid"></div>
+  </div>
+
+  <!-- Log -->
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:16px">
+      <span class="card-title" style="margin-bottom:0">รายการวันนี้</span>
+      <button class="btn-ghost" onclick="resetToday()">ล้างวันนี้</button>
+    </div>
+    <div id="log-list"></div>
+  </div>
+
+  <!-- Goal -->
+  <div class="card">
+    <div class="card-title">เป้าหมายต่อวัน</div>
+    <div class="goal-row">
+      <label>แคลอรี่</label>
+      <input type="range" id="goal-slider" min="1200" max="4000" step="50" value="2000" oninput="updateGoal(+this.value)"/>
+      <span class="goal-val-display" id="goal-display">2,000 kcal</span>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="card">
+    <div class="card-title">ย้อนหลัง 7 วัน</div>
+    <div id="history-list"></div>
+  </div>
+
+</div>
+
+<!-- BMR PAGE -->
+<div class="page" id="page-bmr">
+  <div class="card">
+    <div class="card-title">ข้อมูลร่างกาย</div>
+    <div style="margin-bottom:12px">
+      <div class="seg-control">
+        <button class="seg-btn active" onclick="setSex('male',this)">ชาย</button>
+        <button class="seg-btn" onclick="setSex('female',this)">หญิง</button>
+      </div>
+    </div>
+    <div class="bmr-form">
+      <div class="form-group">
+        <label>อายุ (ปี)</label>
+        <input type="number" id="b-age" placeholder="25" min="10" max="100"/>
+      </div>
+      <div class="form-group">
+        <label>น้ำหนัก (กก.)</label>
+        <input type="number" id="b-weight" placeholder="60" min="20" max="300"/>
+      </div>
+      <div class="form-group">
+        <label>ส่วนสูง (ซม.)</label>
+        <input type="number" id="b-height" placeholder="165" min="100" max="250"/>
+      </div>
+      <div class="form-group">
+        <label>เป้าหมาย</label>
+        <select id="b-goal">
+          <option value="lose">ลดน้ำหนัก</option>
+          <option value="maintain" selected>คงน้ำหนัก</option>
+          <option value="gain">เพิ่มน้ำหนัก</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-primary" style="width:100%;height:44px;font-size:14px" onclick="calcBMR()">คำนวณ</button>
+  </div>
+
+  <div id="bmr-result" style="display:none">
+    <div class="result-grid">
+      <div class="result-card">
+        <div class="rv" id="res-bmr">–</div>
+        <div class="rl">BMR<br><span style="font-size:10px">แคลอรี่ขั้นต่ำ</span></div>
+      </div>
+      <div class="result-card highlight">
+        <div class="rv" id="res-tdee">–</div>
+        <div class="rl">TDEE<br><span style="font-size:10px">ตามกิจกรรม</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">เลือกระดับกิจกรรม</div>
+      <div class="activity-list" id="activity-list"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">แนะนำแคลอรี่ต่อวัน</div>
+      <div id="goal-recs"></div>
+      <button class="use-tdee-btn" id="use-tdee-btn" onclick="useTDEE()">ใช้ค่านี้เป็นเป้าหมาย →</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOODS PAGE -->
+<div class="page" id="page-foods">
+  <div class="card">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="food-search" placeholder="ค้นหาอาหาร..." oninput="renderFoodDB()"/>
+    </div>
+    <div class="cat-tabs" id="cat-tabs"></div>
+    <table class="food-table">
+      <thead>
+        <tr>
+          <th>อาหาร</th>
+          <th>หมวด</th>
+          <th style="text-align:right">kcal</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="food-table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== FOOD DATABASE ===== */
+const FOODS = [
+  // ข้าว / แป้ง
+  {n:"ข้าวสวย",c:205,i:"🍚",u:"1 ถ้วย",cat:"ข้าว/แป้ง"},
+  {n:"ข้าวเหนียว",c:370,i:"🍚",u:"1 ถ้วย",cat:"ข้าว/แป้ง"},
+  {n:"ขนมปังขาว",c:80,i:"🍞",u:"1 แผ่น",cat:"ข้าว/แป้ง"},
+  {n:"ขนมปังโฮลวีท",c:70,i:"🍞",u:"1 แผ่น",cat:"ข้าว/แป้ง"},
+  {n:"เส้นก๋วยเตี๋ยวสด",c:110,i:"🍜",u:"100 ก.",cat:"ข้าว/แป้ง"},
+  {n:"วุ้นเส้น (สุก)",c:80,i:"🍜",u:"100 ก.",cat:"ข้าว/แป้ง"},
+  // อาหารจานเดียว
+  {n:"ข้าวผัดกะเพรา",c:450,i:"🍳",u:"1 จาน",cat:"อาหารไทย"},
+  {n:"ข้าวมันไก่",c:520,i:"🍗",u:"1 จาน",cat:"อาหารไทย"},
+  {n:"ข้าวหมูแดง",c:480,i:"🍖",u:"1 จาน",cat:"อาหารไทย"},
+  {n:"ข้าวหน้าเป็ด",c:550,i:"🦆",u:"1 จาน",cat:"อาหารไทย"},
+  {n:"ข้าวราดแกง",c:400,i:"🍛",u:"1 จาน",cat:"อาหารไทย"},
+  {n:"ข้าวผัดหมู",c:430,i:"🍳",u:"1 จาน",cat:"อาหารไทย"},
+  {n:"ข้าวผัดกุ้ง",c:420,i:"🍳",u:"1 จาน",cat:"อาหารไทย"},
+  {n:"ข้าวเหนียวหมูปิ้ง",c:340,i:"🍢",u:"1 ชุด",cat:"อาหารไทย"},
+  {n:"ข้าวกะเพราไข่ดาว",c:490,i:"🍳",u:"1 จาน",cat:"อาหารไทย"},
+  // ก๋วยเตี๋ยว / เส้น
+  {n:"ก๋วยเตี๋ยวน้ำ",c:320,i:"🍜",u:"1 ชาม",cat:"ก๋วยเตี๋ยว"},
+  {n:"ก๋วยเตี๋ยวแห้ง",c:380,i:"🍜",u:"1 ชาม",cat:"ก๋วยเตี๋ยว"},
+  {n:"ก๋วยเตี๋ยวต้มยำ",c:360,i:"🍜",u:"1 ชาม",cat:"ก๋วยเตี๋ยว"},
+  {n:"ผัดไทยกุ้ง",c:500,i:"🍝",u:"1 จาน",cat:"ก๋วยเตี๋ยว"},
+  {n:"ผัดซีอิ๊ว",c:460,i:"🍝",u:"1 จาน",cat:"ก๋วยเตี๋ยว"},
+  {n:"ราดหน้า",c:470,i:"🍝",u:"1 จาน",cat:"ก๋วยเตี๋ยว"},
+  {n:"เย็นตาโฟ",c:350,i:"🍜",u:"1 ชาม",cat:"ก๋วยเตี๋ยว"},
+  // กับข้าว
+  {n:"ต้มยำกุ้ง",c:220,i:"🍲",u:"1 ชาม",cat:"กับข้าว"},
+  {n:"แกงเขียวหวาน",c:280,i:"🍛",u:"1 ถ้วย",cat:"กับข้าว"},
+  {n:"แกงมัสมั่น",c:320,i:"🍛",u:"1 ถ้วย",cat:"กับข้าว"},
+  {n:"ส้มตำ",c:150,i:"🥗",u:"1 ที่",cat:"กับข้าว"},
+  {n:"ลาบหมู",c:200,i:"🥗",u:"1 ที่",cat:"กับข้าว"},
+  {n:"ผัดผักรวม",c:120,i:"🥦",u:"1 ที่",cat:"กับข้าว"},
+  {n:"ไข่เจียว",c:180,i:"🍳",u:"1 ใบ",cat:"กับข้าว"},
+  {n:"ไข่ดาว",c:90,i:"🍳",u:"1 ฟอง",cat:"กับข้าว"},
+  {n:"ไก่ทอด",c:290,i:"🍗",u:"1 ชิ้น",cat:"กับข้าว"},
+  {n:"หมูทอดกระเทียม",c:260,i:"🍖",u:"1 ที่",cat:"กับข้าว"},
+  {n:"ปลาทอด",c:250,i:"🐟",u:"1 ตัว",cat:"กับข้าว"},
+  {n:"กุ้งทอด",c:200,i:"🦐",u:"5 ตัว",cat:"กับข้าว"},
+  // ของว่าง / อาหารเช้า
+  {n:"โจ๊กหมู",c:180,i:"🥣",u:"1 ชาม",cat:"ของว่าง"},
+  {n:"ขนมปังปิ้งเนย",c:160,i:"🍞",u:"2 แผ่น",cat:"ของว่าง"},
+  {n:"ขนมปังปิ้งไข่",c:200,i:"🍞",u:"2 แผ่น",cat:"ของว่าง"},
+  {n:"แซนด์วิชทูน่า",c:280,i:"🥪",u:"1 ชิ้น",cat:"ของว่าง"},
+  {n:"โยเกิร์ตรสธรรมชาติ",c:100,i:"🥄",u:"1 ถ้วย",cat:"ของว่าง"},
+  {n:"กล้วย",c:90,i:"🍌",u:"1 ลูก",cat:"ผลไม้"},
+  {n:"แอปเปิ้ล",c:80,i:"🍎",u:"1 ลูก",cat:"ผลไม้"},
+  {n:"ส้ม",c:60,i:"🍊",u:"1 ลูก",cat:"ผลไม้"},
+  {n:"มะม่วงสุก",c:130,i:"🥭",u:"1 ลูก",cat:"ผลไม้"},
+  {n:"ทุเรียน",c:360,i:"🟡",u:"100 ก.",cat:"ผลไม้"},
+  {n:"สับปะรด",c:50,i:"🍍",u:"100 ก.",cat:"ผลไม้"},
+  // เครื่องดื่ม
+  {n:"น้ำเปล่า",c:0,i:"💧",u:"1 แก้ว",cat:"เครื่องดื่ม"},
+  {n:"กาแฟดำไม่หวาน",c:5,i:"☕",u:"1 แก้ว",cat:"เครื่องดื่ม"},
+  {n:"กาแฟเย็น (หวาน)",c:130,i:"☕",u:"1 แก้ว",cat:"เครื่องดื่ม"},
+  {n:"ชานมไข่มุก",c:350,i:"🧋",u:"1 แก้ว",cat:"เครื่องดื่ม"},
+  {n:"น้ำอัดลม",c:140,i:"🥤",u:"1 กระป๋อง",cat:"เครื่องดื่ม"},
+  {n:"นมจืด",c:120,i:"🥛",u:"1 กล่อง",cat:"เครื่องดื่ม"},
+  {n:"นมเปรี้ยว",c:110,i:"🥛",u:"1 กล่อง",cat:"เครื่องดื่ม"},
+  {n:"น้ำผลไม้ 100%",c:110,i:"🧃",u:"1 กล่อง",cat:"เครื่องดื่ม"},
+  {n:"เบียร์",c:150,i:"🍺",u:"1 กระป๋อง",cat:"เครื่องดื่ม"},
+  // อาหารฝรั่ง / อื่นๆ
+  {n:"พิซซ่า",c:285,i:"🍕",u:"1 ชิ้น",cat:"อื่นๆ"},
+  {n:"เบอร์เกอร์",c:490,i:"🍔",u:"1 ชิ้น",cat:"อื่นๆ"},
+  {n:"สปาเกตตี",c:430,i:"🍝",u:"1 จาน",cat:"อื่นๆ"},
+  {n:"ซูชิ",c:50,i:"🍣",u:"1 คำ",cat:"อื่นๆ"},
+  {n:"ไอศครีม",c:200,i:"🍦",u:"1 ลูก",cat:"ของว่าง"},
+  {n:"เค้กช็อกโกแลต",c:350,i:"🍰",u:"1 ชิ้น",cat:"ของว่าง"},
+];
+
+const QUICK_FOODS = FOODS.filter(f=>["ข้าวสวย","ข้าวมันไก่","ก๋วยเตี๋ยวน้ำ","ส้มตำ","กาแฟเย็น (หวาน)","กล้วย","น้ำเปล่า","ชานมไข่มุก"].includes(f.n));
+const MEAL_LABELS={breakfast:"มื้อเช้า",lunch:"มื้อกลางวัน",dinner:"มื้อเย็น",snack:"ของว่าง"};
+const MEAL_ICONS={breakfast:"🌅",lunch:"☀️",dinner:"🌙",snack:"🍎"};
+const ACTIVITIES=[
+  {key:"sedentary",label:"นั่งทำงานทั้งวัน",desc:"ออกกำลังกายน้อยมาก",mult:1.2},
+  {key:"light",label:"เคลื่อนไหวเบา",desc:"เดิน / ออกกำลัง 1–2 วัน/สัปดาห์",mult:1.375},
+  {key:"moderate",label:"ปานกลาง",desc:"ออกกำลัง 3–5 วัน/สัปดาห์",mult:1.55},
+  {key:"active",label:"ออกกำลังหนัก",desc:"ออกกำลัง 6–7 วัน/สัปดาห์",mult:1.725},
+  {key:"very_active",label:"นักกีฬา / งานหนัก",desc:"ออกกำลังหนักมากทุกวัน",mult:1.9},
+];
+
+let currentMeal="breakfast";
+let selectedActivity="moderate";
+let bmrSex="male";
+let bmrResult=null;
+let selectedCategory="ทั้งหมด";
+
+let state=loadState();
+
+function todayKey(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function loadState(){try{const r=localStorage.getItem("kcal_v3");if(r)return JSON.parse(r);}catch(e){}return{goal:2000,days:{},bmr:{}}}
+function saveState(){localStorage.setItem("kcal_v3",JSON.stringify(state))}
+function todayLog(){const k=todayKey();if(!state.days[k])state.days[k]=[];return state.days[k]}
+
+/* PAGE NAV */
+function showPage(id,el){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav-tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("page-"+id).classList.add("active");
+  el.classList.add("active");
+}
+
+/* MEAL SELECT */
+function selectMeal(el){
+  document.querySelectorAll(".mtab").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");
+  currentMeal=el.dataset.meal;
+}
+
+/* ADD FOOD */
+function addFood(){
+  const nameEl=document.getElementById("food-input");
+  const calEl=document.getElementById("cal-input");
+  const name=nameEl.value.trim();
+  const cal=parseInt(calEl.value);
+  if(!name||isNaN(cal)||cal<0){nameEl.style.borderColor="#dc2626";setTimeout(()=>nameEl.style.borderColor="",1200);return}
+  const found=FOODS.find(f=>f.n===name);
+  const log=todayLog();
+  log.push({id:Date.now(),name,cal,meal:currentMeal,icon:found?.i||"🍽️",unit:found?.u||""});
+  saveState();nameEl.value="";calEl.value="";
+  renderToday();showToast(`เพิ่ม ${name} ${cal} kcal ✓`);
+}
+
+function addFoodFromDB(n,c,i,u,meal){
+  const log=todayLog();
+  log.push({id:Date.now(),name:n,cal:c,meal:meal||currentMeal,icon:i||"🍽️",unit:u||""});
+  saveState();renderToday();
+  showToast(`เพิ่ม ${n} ${c} kcal ✓`);
+}
+
+function removeFood(id){
+  const k=todayKey();if(state.days[k])state.days[k]=state.days[k].filter(f=>f.id!==id);
+  saveState();renderToday();
+}
+
+function resetToday(){
+  if(!confirm("ล้างรายการวันนี้ทั้งหมด?"))return;
+  state.days[todayKey()]=[];saveState();renderToday();showToast("ล้างรายการวันนี้แล้ว");
+}
+
+function updateGoal(val){
+  state.goal=val;
+  document.getElementById("goal-display").textContent=val.toLocaleString()+" kcal";
+  document.getElementById("goal-slider").value=val;
+  saveState();renderToday();
+}
+
+/* RENDER TODAY */
+function renderToday(){
+  const log=todayLog();
+  const total=log.reduce((s,f)=>s+f.cal,0);
+  const rem=state.goal-total;
+  const over=rem<0;
+  const pct=Math.min(Math.round((total/state.goal)*100),100);
+  const circum=314;
+  const offset=circum-Math.min(pct/100,1)*circum;
+  document.getElementById("ring-arc").setAttribute("stroke-dashoffset",offset.toFixed(1));
+  document.getElementById("ring-arc").setAttribute("stroke",over?"#dc2626":"#16a34a");
+  document.getElementById("ring-pct").textContent=pct+"%";
+  document.getElementById("hstat-consumed").textContent=total.toLocaleString()+" kcal";
+  document.getElementById("hstat-goal").textContent=state.goal.toLocaleString()+" kcal";
+  document.getElementById("hstat-rem").textContent=Math.abs(rem).toLocaleString()+" kcal";
+  document.getElementById("hstat-rem").style.color=over?"#dc2626":"";
+  document.getElementById("rem-lbl").textContent=over?"เกินเป้า":"คงเหลือ";
+  document.getElementById("rem-dot").style.background=over?"#dc2626":"#a1a1aa";
+  document.getElementById("goal-slider").value=state.goal;
+  document.getElementById("goal-display").textContent=state.goal.toLocaleString()+" kcal";
+
+  // macro estimate (rough %)
+  if(total>0){
+    document.getElementById("mac-carb").textContent=Math.round(total*0.5);
+    document.getElementById("mac-pro").textContent=Math.round(total*0.2);
+    document.getElementById("mac-fat").textContent=Math.round(total*0.3);
+  } else {
+    ["mac-carb","mac-pro","mac-fat"].forEach(id=>document.getElementById(id).textContent="–");
+  }
+
+  // log
+  const logEl=document.getElementById("log-list");
+  if(!log.length){
+    logEl.innerHTML='<div class="log-empty"><span class="ei">🥢</span>ยังไม่มีรายการวันนี้</div>';
+  } else {
+    let html="";
+    ["breakfast","lunch","dinner","snack"].forEach(meal=>{
+      const items=log.filter(f=>f.meal===meal);
+      if(!items.length)return;
+      const mt=items.reduce((s,f)=>s+f.cal,0);
+      html+=`<div class="meal-group-hd"><span>${MEAL_ICONS[meal]} ${MEAL_LABELS[meal]}</span><span class="text-muted">${mt.toLocaleString()} kcal</span></div>`;
+      items.forEach(f=>{
+        html+=`<div class="log-item">
+          <span class="li-icon">${f.icon}</span>
+          <div class="li-body"><div class="li-name">${f.name}</div>${f.unit?`<div class="li-unit">${f.unit}</div>`:""}</div>
+          <span class="li-cal">${f.cal.toLocaleString()}<span> kcal</span></span>
+          <button class="btn-del" onclick="removeFood(${f.id})">×</button>
+        </div>`;
+      });
+    });
+    logEl.innerHTML=html;
+  }
+
+  // history
+  renderHistory();
+}
+
+function renderHistory(){
+  const listEl=document.getElementById("history-list");
+  const rows=[];
+  for(let i=1;i<=7;i++){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    const items=state.days[k]||[];
+    const total=items.reduce((s,f)=>s+f.cal,0);
+    if(!total)continue;
+    const pct=Math.min((total/state.goal)*100,100);
+    const over=total>state.goal;
+    const label=d.toLocaleDateString("th-TH",{weekday:"short",day:"numeric",month:"short"});
+    rows.push(`<div class="hist-day">
+      <span class="hist-date">${label}</span>
+      <div class="hist-bar-track"><div class="hist-bar-fill${over?" over":""}" style="width:${pct.toFixed(0)}%"></div></div>
+      <span class="hist-cal">${total.toLocaleString()}</span>
+    </div>`);
+  }
+  listEl.innerHTML=rows.length?rows.join(""):'<div class="text-muted" style="padding:12px 0;text-align:center">ยังไม่มีประวัติ</div>';
+}
+
+/* BMR */
+function setSex(sex,el){
+  bmrSex=sex;
+  document.querySelectorAll(".seg-btn").forEach(b=>b.classList.remove("active"));
+  el.classList.add("active");
+}
+
+function calcBMR(){
+  const age=+document.getElementById("b-age").value;
+  const w=+document.getElementById("b-weight").value;
+  const h=+document.getElementById("b-height").value;
+  const goal=document.getElementById("b-goal").value;
+  if(!age||!w||!h){showToast("กรอกข้อมูลให้ครบก่อนนะ");return}
+  let bmr;
+  if(bmrSex==="male") bmr=10*w+6.25*h-5*age+5;
+  else bmr=10*w+6.25*h-5*age-161;
+  bmrResult={bmr:Math.round(bmr),goal,w,h,age,sex:bmrSex};
+  state.bmr={...bmrResult};saveState();
+  document.getElementById("res-bmr").textContent=Math.round(bmr).toLocaleString();
+  renderActivityList(bmr,goal);
+  document.getElementById("bmr-result").style.display="block";
+  document.getElementById("bmr-result").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function renderActivityList(bmr,goal){
+  const list=document.getElementById("activity-list");
+  list.innerHTML=ACTIVITIES.map(a=>{
+    const tdee=Math.round(bmr*a.mult);
+    const sel=a.key===selectedActivity;
+    return`<div class="act-item${sel?" selected":""}" onclick="selectActivity('${a.key}',${bmr},${tdee},'${goal}')">
+      <div><div class="act-name">${a.label}</div><div class="act-desc">${a.desc}</div></div>
+      <div class="act-cal">${tdee.toLocaleString()}</div>
+    </div>`;
+  }).join("");
+  const chosen=ACTIVITIES.find(a=>a.key===selectedActivity);
+  const tdee=Math.round(bmr*(chosen?.mult||1.55));
+  document.getElementById("res-tdee").textContent=tdee.toLocaleString();
+  renderGoalRecs(tdee,goal);
+}
+
+function selectActivity(key,bmr,tdee,goal){
+  selectedActivity=key;
+  renderActivityList(bmr,goal);
+}
+
+function renderGoalRecs(tdee,goal){
+  const recs={lose:tdee-500,maintain:tdee,gain:tdee+300};
+  const labels={lose:"ลดน้ำหนัก (−500 kcal)",maintain:"คงน้ำหนัก",gain:"เพิ่มน้ำหนัก (+300 kcal)"};
+  let html="";
+  Object.entries(recs).forEach(([k,v])=>{
+    const active=k===goal;
+    html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--gray100);${k==='gain'?'border-bottom:none':''}">
+      <span style="font-size:13px;color:${active?"var(--gray900)":"var(--gray400)"};">${labels[k]}</span>
+      <span style="font-size:14px;font-weight:${active?"600":"400"};color:${active?"var(--green)":"var(--gray400)"};">${v.toLocaleString()} kcal</span>
+    </div>`;
+  });
+  document.getElementById("goal-recs").innerHTML=html;
+  document.getElementById("use-tdee-btn").dataset.val=recs[goal];
+}
+
+function useTDEE(){
+  const val=+document.getElementById("use-tdee-btn").dataset.val;
+  if(!val)return;
+  updateGoal(val);
+  showPage("today",document.querySelectorAll(".nav-tab")[0]);
+  showToast(`ตั้งเป้าหมาย ${val.toLocaleString()} kcal แล้ว ✓`);
+}
+
+/* FOOD DB PAGE */
+function renderFoodDB(){
+  const q=document.getElementById("food-search").value.toLowerCase();
+  const cat=selectedCategory;
+  const filtered=FOODS.filter(f=>{
+    const matchQ=!q||f.n.toLowerCase().includes(q);
+    const matchC=cat==="ทั้งหมด"||f.cat===cat;
+    return matchQ&&matchC;
+  });
+  const body=document.getElementById("food-table-body");
+  body.innerHTML=filtered.map(f=>`<tr>
+    <td><span class="food-name-cell">${f.i} ${f.n}</span><br><span class="text-muted">${f.u}</span></td>
+    <td><span class="food-cat-badge">${f.cat}</span></td>
+    <td style="text-align:right;font-weight:600">${f.c}</td>
+    <td><button class="btn-add-food" onclick="addFoodFromDB('${f.n}',${f.c},'${f.i}','${f.u}')">+ เพิ่ม</button></td>
+  </tr>`).join("");
+}
+
+function renderCatTabs(){
+  const cats=["ทั้งหมด",...new Set(FOODS.map(f=>f.cat))];
+  const el=document.getElementById("cat-tabs");
+  el.innerHTML=cats.map(c=>`<button class="cat-tab${c===selectedCategory?" active":""}" onclick="selectCat('${c}',this)">${c}</button>`).join("");
+}
+
+function selectCat(cat,el){
+  selectedCategory=cat;
+  document.querySelectorAll(".cat-tab").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");
+  renderFoodDB();
+}
+
+/* SETUP */
+function setupDatalist(){
+  const dl=document.getElementById("food-dl");
+  FOODS.forEach(f=>{const o=document.createElement("option");o.value=f.n;dl.appendChild(o)});
+  document.getElementById("food-input").addEventListener("input",function(){
+    const found=FOODS.find(f=>f.n===this.value);
+    if(found)document.getElementById("cal-input").value=found.c;
+  });
+}
+
+function setupQuickPicks(){
+  const grid=document.getElementById("qp-grid");
+  QUICK_FOODS.forEach(f=>{
+    const c=document.createElement("div");
+    c.className="qp-chip";
+    c.innerHTML=`${f.i} ${f.n} <span style="opacity:0.6">${f.c}</span>`;
+    c.onclick=()=>{document.getElementById("food-input").value=f.n;document.getElementById("cal-input").value=f.c};
+    grid.appendChild(c);
+  });
+}
+
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+function setup(){
+  document.querySelectorAll("input[type=text],input[type=number]").forEach(el=>{
+    el.addEventListener("keydown",e=>{if(e.key==="Enter"&&(el.id==="food-input"||el.id==="cal-input"))addFood()});
+  });
+  // restore BMR
+  if(state.bmr&&state.bmr.age){
+    document.getElementById("b-age").value=state.bmr.age||"";
+    document.getElementById("b-weight").value=state.bmr.w||"";
+    document.getElementById("b-height").value=state.bmr.h||"";
+    if(state.bmr.sex)bmrSex=state.bmr.sex;
+    if(state.bmr.goal)document.getElementById("b-goal").value=state.bmr.goal;
+  }
+  // Prune old
+  const cut=new Date();cut.setDate(cut.getDate()-14);
+  Object.keys(state.days).forEach(k=>{if(new Date(k)<cut)delete state.days[k]});
+  setupDatalist();
+  setupQuickPicks();
+  renderCatTabs();
+  renderFoodDB();
+  renderToday();
+}
+
+setup();
+</script>
+</body>
+</html>
